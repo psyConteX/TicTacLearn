@@ -1,0 +1,184 @@
+from turtle import screensize
+import pygame
+import numpy as np
+import random
+
+screenheight = 900
+screenwidth = 1600
+BlueWave = 0.0
+
+class Game:
+
+    def __init__(self):
+        pygame.init()
+        self.backgroundblue = 10
+        self.newbackgroundblue = 255
+        self.screen = pygame.display.set_mode((screenwidth, screenheight))
+        self.clock = pygame.time.Clock()
+
+        self.p1_pos = np.array([10, screenheight/2])
+        self.p2_pos = np.array([screenwidth-10, screenheight/2])
+        self.ball_pos = np.array([screenwidth/2, screenheight/2])
+        self.buff_size = np.array([250,250])
+        self.buff_pos = np.array([250,250])
+        self.bufftimer = 0.01
+        self.buffstate = 0
+        self.buffActive = 0
+        self.ball_acceleration = np.array([5, 1])
+        self.player_acceleration = np.array([0, 7])
+        self.resetballspeed()
+        self.game_loop()
+
+    def reset(self):
+        self.p1_pos = np.array([10, screenheight/2])
+        self.p2_pos = np.array([screenwidth-10, screenheight/2])
+        self.ball_pos = np.array([screenwidth/2, screenheight/2])
+
+    def game_loop(self):
+        while True:
+            self.clock.tick(60)
+            self.updatescreen()
+
+            self.input()
+            self.update()
+            self.draw()
+
+            self.timer()
+
+
+            pygame.display.flip()
+
+    def input(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+        if pygame.key.get_pressed()[pygame.K_w]:
+             self.p1_pos += self.player_acceleration * np.array([0, -1])
+
+        if pygame.key.get_pressed()[pygame.K_s]:
+             self.p1_pos += self.player_acceleration
+
+        if pygame.key.get_pressed()[pygame.K_UP]:
+             self.p2_pos += self.player_acceleration * np.array([0, -1])
+
+        if pygame.key.get_pressed()[pygame.K_DOWN]:
+             self.p2_pos += self.player_acceleration
+
+    def update(self):
+        if self.ball_collision_screen_left() or self.ball_collision_screen_right():
+            self.reset()
+
+        if self.ball_player_collision():
+            self.ball_acceleration = self.ball_acceleration * np.array([-1, 1])
+
+        if self.ball_collision_screen_top() or self.ball_collision_screen_bottom():
+            self.ball_acceleration = self.ball_acceleration * np.array([1, -1])
+
+        if self.ball_powerup_collision() and self.buffActive == 1:
+            self.buffstate = 1
+            self.bufftimer = 10
+            self.buffActive = 0
+            self.randomspeed = np.array([random.randrange(-20, 20),random.randrange(-6, 6)])
+            self.ball_acceleration += self.randomspeed
+            self.player_acceleration[1] += self.randomspeed[1]+self.randomspeed[0]
+            self.SetNewbackgroundblue()
+
+        self.ball_pos += self.ball_acceleration
+
+    def draw(self):
+        pygame.draw.rect(self.screen, pygame.Color(255, 0, 0), (self.p1_pos[0], self.p1_pos[1], 10, 100))
+        pygame.draw.rect(self.screen, pygame.Color(255, 0, 0), (self.p2_pos[0], self.p2_pos[1], 10, 100))
+        pygame.draw.rect(self.screen, pygame.Color(255, 0, 0), (self.ball_pos[0], self.ball_pos[1], 15, 15))
+        if self.buffstate == 1:
+            pygame.draw.circle(self.screen, pygame.Color(255, 0, 0), (self.ball_pos[0]+5,self.ball_pos[1]+5),30, 3)
+        if self.buffActive == 1:
+            pygame.draw.rect(self.screen, pygame.Color(0, 255, 0), (self.buff_pos[0],self.buff_pos[1],self.buff_size[0],self.buff_size[1]))
+
+    def ball_player_collision(self):
+        return self.ball_player1_collision() or self.ball_player2_collision()
+
+    def ball_player1_collision(self):
+        return self.aabb_collision(self.p1_pos[0], self.p1_pos[1], 10, 100, self.ball_pos[0], self.ball_pos[1], 15, 15)
+
+    def ball_player2_collision(self):
+        return self.aabb_collision(self.p2_pos[0], self.p2_pos[1], 10, 100, self.ball_pos[0], self.ball_pos[1], 15, 15)
+
+    def ball_powerup_collision(self):
+        return self.aabb_collision(self.buff_pos[0], self.buff_pos[1],self.buff_size[0], self.buff_size[1],self.ball_pos[0], self.ball_pos[1] ,15 ,15)
+
+    def aabb_collision(self, a_x, a_y,  a_width, a_height, b_x, b_y, b_width, b_height):
+        collision_x = a_x + a_width >= b_x and b_x + b_width >= a_x
+        collision_y = a_y + a_height >= b_y and b_y + b_height >= a_y
+
+        return collision_y and collision_x
+
+    def ball_collision_screen_left(self):
+        return self.ball_pos[0] <= 0
+
+
+    def ball_collision_screen_right(self):
+        return self.ball_pos[0] + 15 >= screenwidth
+
+    def ball_collision_screen_top(self):
+        return self.ball_pos[1] <= 0
+
+    def ball_collision_screen_bottom(self):
+        return self.ball_pos[1] + 15 >= screenheight
+
+    def timer(self):
+        self.bufftimer -= random.uniform(0.03,0.01)
+
+        if self.bufftimer < 0 and self.buffActive == 0 :
+            self.spawnBuff()
+            self.resetballspeed()
+            self.resetplayerspeed()
+            self.buffstate = 0
+
+        print(self.bufftimer)
+        return self.bufftimer
+
+    def spawnBuff(self):
+        self.buff_pos = np.array([random.randrange(screenwidth/4,screenwidth/4*3), random.randrange(screenheight/4,screenheight/4*3)])
+        self.buffActive = 1
+    def resetplayerspeed(self):
+        self.player_acceleration = np.array([0, 7])
+
+    def resetballspeed(self):
+        if self.ball_acceleration[0] > 0 :
+            self.ball_acceleration = np.array([5, 1])
+        else :
+            self.ball_acceleration = np.array([-5, 1])
+
+    def SetNewbackgroundblue(self):
+            self.newbackgroundblue = random.randrange(self.backgroundblue,self.newbackgroundblue)
+    
+    def updatescreen(self):
+        global BlueWave
+        if  self.buffstate == 1:
+            if self.backgroundblue>=self.newbackgroundblue: 
+                BlueWave = BlueWave-0.15
+                print("BW-0.15",BlueWave ,self.backgroundblue, self.newbackgroundblue)
+            
+            if self.backgroundblue<=self.newbackgroundblue:
+                BlueWave = BlueWave+0.15
+                print("BW+0.15",self.backgroundblue, self.newbackgroundblue)
+            
+            self.backgroundblue+=BlueWave
+            if BlueWave >= 3:
+                self.SetNewbackgroundblue()
+                BlueWave=2.95
+            if BlueWave <= -3:
+                self.SetNewbackgroundblue()
+                BlueWave=-2.95
+            self.screen.fill((0, 0, self.backgroundblue))
+
+        else :
+            self.screen.fill((0, 0, 0))
+
+
+
+
+
+
+Game()

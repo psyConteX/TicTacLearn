@@ -1,0 +1,27 @@
+1
+PersonNr:1/1
+Name:Test1, Test2
+Age:3
+Gender: Female
+Hobby: test
+Wohnort: Test4
+Favorit Anime: Test 5 
+Charcount Note: 6
+Favorit Color: Blau
+Cosplayer
+Shy
+Introvertiert
+Single
+Job: Test6
+Mag: Test7
+Hass: Test8
+Skala 1-10: 10
+Kontakt: Test9
+Note:  
+Charcount Note: 4
+Kompliment: Nicht soooo dumm 
+Charcount Note: 16
+Besonderheit: Dumm 
+Charcount Note: 25
+Eindruck: aber halt nicht so schlau 
+Charcount Note: 0
