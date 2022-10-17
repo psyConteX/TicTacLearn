@@ -1,11 +1,42 @@
+from turtle import update
+
+
 c = 3
 r = 3
-x = [ [0] * c for i in range(r) ]
-y = [ [0] * c for i in range(r) ]
+#x = [ [0] * c for i in range(r) ]
+#y = [ [0] * c for i in range(r) ]
 taken = [ [0] * c for i in range(r) ]
 turn = 1
-gameStart=True
+turnCounter = 0
+global gameStart
+gameStart = True
 gameWin='O'
+
+def checkwin(player):
+    global gameStart
+    for i in range(0,3): # Counting "player" in colum
+        points = 0
+        for ii in range(0,3):
+            if taken[i][ii] == player:
+                points += 1
+                if points >= 3:
+                    updateWIN(player)
+                    gameStart = False
+    for ii in range(0,3): #  Counting "player" in ROW
+        points = 0
+        for i in range(0,3):
+            if taken[i][ii] == player:
+                points += 1
+                if points >= 3:
+                    updateWIN(player)
+                    gameStart = False
+    if taken[0][0] == player and taken[1][1] == player and taken[2][2] == player: # WIN condition top left middle bottom right
+        updateWIN(player)
+        gameStart = False
+    if taken[0][2] == player and taken[1][1] == player and taken[2][0] == player: # WIN condition top right middle bottom left
+        gameStart = False        
+        updateWIN(player)
+    return True
 def playermove(turn):
     if (turn==1):
         turn = turn *-1
@@ -39,6 +70,8 @@ def Set(player):
         if int(KeyInput) >=1 and int(KeyInput) <= 9:
             if taken[(int(KeyInput)-1)//3][(int(KeyInput)-1)%3] != 'x' and taken[(int(KeyInput)-1)//3][(int(KeyInput)-1)%3]!= 'y':
                 taken[(int(KeyInput)-1)//3][(int(KeyInput)-1)%3]=player
+                global turnCounter
+                turnCounter += 1
             else:
                 print("Wrong Input")
                 Set(player)
@@ -48,38 +81,8 @@ def Set(player):
     else:
         print("Wrong Input")
         Set(player)
-def checkwin(player):
-    for i in range(0,3):
-        points = 0
-        for ii in range(0,3):
-            if taken[i][ii] == player:
-                points += 1
-                if points >= 3:
-                    print(player, "wins")
-                    return False
-    for ii in range(0,3):
-        points = 0
-        for i in range(0,3):
-            if taken[i][ii] == player:
-                points += 1
-                if points >= 3:
-                    print(player, "wins")
-                    return False
-    if taken[0][0] == player and taken[1][1] == player and taken[2][2]:
-        print(player,"wins")
-        return False
-    if taken[0][2] == player and taken[1][1] == player and taken[2][0]:    
-        print(player,"wins")
-        return False
-    return True
-#         iii+=1
-#         x[i][ii]='x'
-#         y[i][ii]='y'
-#         taken[i][ii]='O'
-
-while gameStart:
+def printBoard():
     iii=0
-    clearscreen()
     print("----------")
     for i in range(0,3):
         for ii in range(0,3):
@@ -94,9 +97,24 @@ while gameStart:
                 taken[i][ii]=iii
         print(taken[i][0],'|',taken[i][1],'|',taken[i][2])
         print("----------")
-    turn = playermove(turn)
-    if checkwin('x')==True:
-        gameStart = checkwin('y')
-    else: 
+def updateWIN(player):
+    clearscreen()
+    printBoard()
+    print(player, "wins")
+#         iii+=1
+#         x[i][ii]='x'
+#         y[i][ii]='y'
+#         taken[i][ii]='O'
+
+while gameStart:
+
+    clearscreen()
+    printBoard()
+    if turnCounter >= 9:
         gameStart = False
+        print("Draw")
+    if gameStart == True:        
+        turn = playermove(turn)
+    checkwin('x')     
+    checkwin('y')        
 #playerturns
