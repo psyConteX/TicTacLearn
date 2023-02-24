@@ -1,3 +1,5 @@
+/*basically a addressbook with weird questions to fill in, all to learn a bit of c++*/
+
 #include <iostream>
 #include <string> //std::stoi
 #include <stdlib.h> //uselessleftover
@@ -5,8 +7,8 @@
 #include <array>
 #include <fstream> //file I O
 
-const int ArrayCount = 1000; 	// init of variable arraycount
-const int NoteCountCounterMax = 5;
+const int ArrayCount = 1000; 	// init of variable arraycount / arbitrary count this would be better with a flexible array std#array
+const int NoteCountCounterMax = 5; 
 const std::string DataName = "DataListSL.dat"; //dataname
 const std::string ReadableTXT = "ReadableData.txt"; //dataname readable
 int PersonNr = 0;									// Resetting the PersonCount to 0
@@ -27,7 +29,7 @@ std::string Job[ArrayCount];
 std::string Mag[ArrayCount];						
 std::string Hass[ArrayCount];						
 bool introextro[ArrayCount];						
-bool shy[ArrayCount];								
+bool shy[ArrayCount];					
 std::string Kontakt[ArrayCount];					
 int scale[ArrayCount];								
 int NoteCountCounter[ArrayCount];

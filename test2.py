@@ -1,4 +1,4 @@
-from random import randint, random, randrange
+from random import randint
 
 
 c = 3
@@ -11,6 +11,7 @@ turnCounter = 0
 global gameStart
 gameStart = True
 ki_an = False
+notplayer='y'
 
 def checkwin(player):#checks if active player wins
     global gameStart
@@ -38,15 +39,22 @@ def checkwin(player):#checks if active player wins
         updateWIN(player)
     return True
 def playermove(turn):#changes the turn order
+    global notplayer
+    global player
+
     if (turn==1):
         turn = turn *-1
         print("x's turn")
         Set('x')
+        notplayer = 'y'
+        player = 'x'
         return turn
     else:
         turn = turn *-1
         print("y's turn")
         Set('y')
+        notplayer = 'x'
+        player = 'y'
         return turn
 def clearscreen():#"clears" the terminal
     print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -93,7 +101,35 @@ def keyCheck(KeyInput, player):#checking a int
     else:
             print("Wrong Input")
             Set(player)    
+def calcMove(player, notplayer):
+    global bestmovex
+    global bestmovey
+    global bestmovex2
+    global bestmovey2
+    for i in range(0,r): # Counting "player" in colum
+        points = 0
+        for ii in range(0,c):
+            if taken[i][ii] == player and taken[i][ii] != notplayer:
+                points += 1
+            else:
+                bestmovex = i
+                bestmovey = ii
+        if points == 2 and taken[bestmovex][bestmovey]:
+            print("finish row",bestmovex,bestmovey,player)
+            break
 
+    for ii in range(0,r): #  Counting "player" in ROW
+        points = 0
+        for i in range(0,c):
+            if taken[i][ii] == player and taken[i][ii] != notplayer:
+                points += 1
+            else:
+                bestmovex2 = ii
+                bestmovey2 = i
+        if points == 2 :
+            print("finish colum",bestmovex2,bestmovey2,player )
+            break
+    return True
 
 while gameStart:
     clearscreen()
@@ -103,6 +139,7 @@ while gameStart:
         print("Draw")
     if gameStart == True:#if the game is running let a player make a move
         turn = playermove(turn)
+    calcMove(player, notplayer)
     checkwin('x')     
     checkwin('y')        
 #playerturns
